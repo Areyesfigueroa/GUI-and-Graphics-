@@ -1,1 +1,1 @@
-This directory is used to upload assignments mainly HTML and JavaScript files. 
+Class 2 Assignment(part 1) is now Finished
