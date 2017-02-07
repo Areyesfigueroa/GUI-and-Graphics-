@@ -2,7 +2,7 @@ var gl = null;
 
 function init() {
 
-    var canvas = document.getElementById( "webgl-canvas2" );
+    var canvas = document.getElementById( "w" );
 
     gl = WebGLUtils.setupWebGL( canvas );
 
