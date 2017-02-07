@@ -2,7 +2,7 @@ var gl = null;
 
 function init() {
 
-    var canvas = document.getElementById( "webgl-canvas" );
+    var canvas = document.getElementById( "cone" );
 
     gl = WebGLUtils.setupWebGL( canvas );
 
