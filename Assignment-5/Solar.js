@@ -11,23 +11,23 @@ var gl;
 //
 //  Declare our array of planets (each of which is a sphere)
 //
-// The list of planets to render.  Uncomment any planets that you are 
-// including in the scene. For each planet in this list, make sure to 
+// The list of planets to render.  Uncomment any planets that you are
+// including in the scene. For each planet in this list, make sure to
 // set its distance from the Sun, as well its size, color, and orbit
-// around the Sun. 
+// around the Sun.
 
 var Planets = {
   Sun : undefined,
-  // Mercury : undefined,
-  // Venus : undefined,
-  // Earth : undefined,
-  // Moon : undefined,
-  // Mars : undefined,
-  // Jupiter : undefined,
-  // Saturn : undefined,
-  // Uranus : undefined,
-  // Neptune : undefined,
-  // Pluto : undefined
+  Mercury : undefined,
+  Venus : undefined,
+  Earth : undefined,
+  Moon : undefined,
+  Mars : undefined,
+  Jupiter : undefined,
+  Saturn : undefined,
+  Uranus : undefined,
+  Neptune : undefined,
+  Pluto : undefined
 };
 
 // Viewing transformation parameters
@@ -39,7 +39,7 @@ var near = 10;      // near clipping plane's distance
 var far = 120;      // far clipping plane's distance
 
 // Animation variables
-var time = 0.0;      // time, our global time constant, which is 
+var time = 0.0;      // time, our global time constant, which is
                      // incremented every frame
 var timeDelta = 0.5; // the amount that time is updated each fraime
 
@@ -71,12 +71,12 @@ function init() {
 
     var planet = Planets[name] = new Sphere();
 
-    // For each planet, we'll add a new property (which itself is a 
+    // For each planet, we'll add a new property (which itself is a
     // dictionary) that contains the uniforms that we will use in
     // the associated shader programs for drawing the planets.  These
     // uniform's values will be set each frame in render().
 
-    planet.uniforms = { 
+    planet.uniforms = {
       color : gl.getUniformLocation(planet.program, "color"),
       MV : gl.getUniformLocation(planet.program, "MV"),
       P : gl.getUniformLocation(planet.program, "P"),
@@ -85,7 +85,7 @@ function init() {
 
   resize();
 
-  window.requestAnimationFrame(render);  
+  window.requestAnimationFrame(render);
 }
 
 //---------------------------------------------------------------------------
@@ -100,52 +100,25 @@ function render() {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // Specify the viewing transformation, and use it to initialize the 
+  // Specify the viewing transformation, and use it to initialize the
   // matrix stack
 
-  V = translate(0.0, 0.0, -0.5*(near + far));
-  ms.load(V);  
+  V = translate(1.0, 0.0, -0.5*(near + far)); //vector coordinates to init the stack
+  ms.load(V);
 
-  // Create a few temporary variables to make it simpler to work with
-  // the various properties we'll use to render the planets.  The Planets
-  // dictionary (created in init()) can be indexed by each planet's name.
-  // We'll use the temporary variables "planet" to reference the geometric
-  // information (e.g., sphere model) we created in the Planets array.
-  // Likewise, we'll use "data" to reference the database of information
-  // about the planets in SolarSystem.  Look at how these are
-  // used; it'll simplify the work you need to do.
+  //Render planets
+  renderPlanet("Sun", ms);
+  renderPlanet("Earth", ms);
+  renderPlanet("Moon", ms);
+  renderPlanet("Mercury", ms); //very small, could not be seen with defalut size
+  renderPlanet("Venus", ms);
 
-  var name, planet, data;
-
-  name = "Sun";
-  planet = Planets[name];
-  data = SolarSystem[name];
-  
-  // Set PointMode to true to render all the vertices as points, as
-  // compared to filled triangles.  This can be useful if you think
-  // your planet might be inside another planet or the Sun.  Since the
-  // "planet" variable is set for each object, you will need to set this
-  // for each planet separately.
-
-  planet.PointMode = false;
-
-  // Use the matrix stack to configure and render a planet.  How you rener
-  // each planet will be similar, but not exactly the same.  In particular,
-  // here, we're only rendering the Sun, which is the center of the Solar
-  // system (and hence, has no translation to its location).
-
-  ms.push();
-  ms.scale(data.radius);
-  gl.useProgram(planet.program);
-  gl.uniformMatrix4fv(planet.uniforms.MV, false, flatten(ms.current()));
-  gl.uniformMatrix4fv(planet.uniforms.P, false, flatten(P));
-  gl.uniform4fv(planet.uniforms.color, flatten(data.color));
-  planet.render();
-  ms.pop();
-
-  //
-  //  Add your code for more planets here!
-  //
+  renderPlanet("Mars", ms);
+  renderPlanet("Jupiter", ms);
+  renderPlanet("Saturn", ms);
+  renderPlanet("Uranus", ms);
+  renderPlanet("Neptune", ms);
+  renderPlanet("Pluto", ms);
 
   window.requestAnimationFrame(render);
 }
@@ -154,6 +127,90 @@ function render() {
 //
 //  resize() - handle resize events
 //
+
+function renderPlanet(name, ms)
+{
+    var planet, data;
+    var translateOffset = 0;
+    var scaleOffset = 0;
+
+    var time = (new Date()).getTime() * 0.0002;
+
+    planet = Planets[name];
+    data = SolarSystem[name];
+
+    planet.PointMode = false;
+/////////////////////////////////////////////////////////////////////////
+//Push onto MatrixStack stack switch statement
+    switch (name)
+    {
+
+      case 'Moon':
+        //translate around Earth
+        ms.push();
+        ms.rotate((360/SolarSystem['Earth'].year) * time, [0, 0, 1]);
+        ms.push();
+        ms.translate(SolarSystem['Earth'].distance + (translateOffset *1.3), 0, 0);
+        break;
+
+      case 'Mercury':
+      case "Venus":
+      case 'Earth':
+      ms.push();
+      ms.rotate((360/data.year) * time, [0, 0, 1]);
+      ms.push();
+      ms.translate(data.distance + translateOffset, 0, 0);
+      break;
+      case 'Mars':
+      case 'Jupiter':
+      case 'Saturn':
+      case 'Uranus':
+      case 'Neptune':
+      case 'Pluto':
+        ms.push();
+        ms.rotate((360/data.year) * time, [0, 0, 1]);
+        ms.push();
+        ms.translate(data.distance + translateOffset, 0, 0);
+        break;
+      default:
+    }
+
+    //Push scale, setup the program, calculate the matrix stack coordinates,
+    // render & pop first element.
+      ms.push();
+      ms.scale(data.radius + scaleOffset); //scale planets accordingly
+      gl.useProgram(planet.program); //sets up the shader program
+      gl.uniformMatrix4fv(planet.uniforms.MV, false, flatten(ms.current())); //math
+      gl.uniformMatrix4fv(planet.uniforms.P, false, flatten(P)); //math
+      gl.uniform4fv(planet.uniforms.color, flatten(data.color));
+      planet.render();
+      ms.pop(); //return to current state for reuse
+
+      switch (name) {
+        case 'Moon':
+          ms.pop();
+          ms.pop();
+          break;
+
+        case 'Mercury':
+        case "Venus":
+        case 'Earth':
+          ms.pop();
+          ms.pop();
+          break;
+
+        case 'Mars':
+        case 'Jupiter':
+        case 'Saturn':
+        case 'Uranus':
+        case 'Neptune':
+        case 'Pluto':
+          ms.pop();
+          ms.pop();
+          break;
+        default:
+      }
+}
 
 function resize() {
   var w = canvas.clientWidth;
