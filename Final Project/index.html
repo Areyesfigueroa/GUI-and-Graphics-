@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>three.js canvas - particles - sprites</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable = no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <style>
+    body
+    {
+      background-color: #000000;
+      margin: 0px;
+      overflow: hidden;
+    }
+
+    canvas
+    {
+      color: #0078ff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!--Initializing Canvas-->
+  <canvas id="myCanvas"></canvas>
+
+  <!--Loading Three.js Library-->
+  <script src="three.js"></script>
+  <script src="particle.js"></script>
+  <script src="firework.js"></script>
+  <script src="TrackballControls.js"></script>
+
+  <!--Creating Renderer. NOTE: renderer helps draw everything into our canvas-->
+  <script>
+
+    //global variables
+    var camera, scene, renderer, controls;
+    var ambientLight, pointLight;
+    var geometry, material, mesh;
+
+    //Particles, 2D
+    var fireworks = []; //make an array.
+
+    //Animation
+    var deltaTime = 1;
+
+    //Init Call
+    init();
+    animate();
+
+    function init()
+    {
+      //RENDERER
+      //Renderer Draws onto the canvas.
+      renderer = new THREE.WebGLRenderer({canvas: document.getElementById("myCanvas"), antialias: true, preserveDrawingBuffer: true});
+
+      //renderer properties.
+      renderer.setClearColor(000000); //Black
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.autoClearColor = false;
+
+      //CAMERA
+      //params(fieldOfView, aspect ratio, clipping range)
+      camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 3000);
+
+      //CAMERA CONTROLS
+      controls = new THREE.TrackballControls(camera);
+
+      controls.rotateSpeed = 1.0;
+      controls.zoomSpeed = 1.2;
+      controls.panSpeed = 0.8;
+
+      controls.noZoom = false;
+      controls.noPan = false;
+
+      controls.staticMoving = true;
+      controls.dynamicDampingFactor = 0.3;
+
+      controls.keys = [65, 83, 68];
+
+      //controls.addEventListener("change", render);
+
+      //SCENE
+      //Create a new instance of THREE.Scene.
+      scene = new THREE.Scene();
+
+      //LIGHTS
+      //params (color, intensity)
+      ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);  //Add ambientLight to the scene
+
+      pointLight = new THREE.PointLight(0xffffff, 0.5);
+      scene.add(pointLight);  //Add point light to the scene.
+
+      //Creates A trail by making the "Canvas" or plane transparent and reduces the opacity.
+      var plane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({transparent: true, opacity: 0.2, color: 000000}));
+      plane.position.z = -10;
+      scene.add(plane);
+
+      //document.body.appendChild(renderer.domElement);
+
+    }
+
+    function animate()
+    {
+      //If Random number between 0 and 1 is < 0.1 -> 4% chance of making a firework.
+      if(Math.random() * 1 < 0.04)
+      {
+        //PARTICLE
+        fireworks.push(new Firework()); //Array of particles.
+
+      }
+
+      for(var i= fireworks.length - 1; i >= 0; i--)
+      {
+        fireworks[i].update();
+        fireworks[i].show();
+
+
+        //if firework is done
+        if(fireworks[i].done())
+        {
+          fireworks.splice(i, 1);
+        }
+      }
+
+      //console.log(fireworks.length);
+
+      //RENDER CALL
+      //controls.update(); //update controls from the mouse. Not working
+
+      render();
+      requestAnimationFrame(animate);
+    }
+
+    //Draw Function
+    function render()
+    {
+      //Render whole scene.
+      renderer.render(scene, camera);
+    }
+
+  </script>
+
+</body>
+
+</html>
