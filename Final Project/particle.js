@@ -4,7 +4,7 @@ class Particle
   //<Params>Scene</Params> Required
   //<Params>x, y, z</Params> Optional, Vector position of the particle.
   //<Params>scaleX, scaleY, scaleZ</Params> Optional, Size of the particle.
-  constructor(scene, firework = false, color, posX = 0, posY = 0, posZ = 0, scaleX = 2, scaleY = 2, scaleZ = 2)
+  constructor(scene, firework = false, color, posX = 0, posY = 0, posZ = 0, scaleX = 3, scaleY = 3, scaleZ = 3)
   {
     //POSITION, VELOCITY, ACCELERATION
     this.pos = new THREE.Vector3(posX, posY, posZ); //sets origin position
